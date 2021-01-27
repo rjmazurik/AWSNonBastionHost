@@ -7,15 +7,15 @@ Resources:
       EnableDnsSupport: true
       EnableDnsHostnames: true
       Tags:
-          - Key: "deprovision"
-            Value: "awsnonbastionhost"
+          - Key: "Deprovision"
+            Value: "AWSNonBastionHost"
   InternetGateway:
     Type: 'AWS::EC2::InternetGateway'
     DependsOn: VPC
     Properties: 
       Tags:
-          - Key: "deprovision"
-            Value: "awsnonbastionhost"
+          - Key: "Deprovision"
+            Value: "AWSNonBastionHost"
   InternetGatewayAttachment:
     Type: 'AWS::EC2::VPCGatewayAttachment'
     Properties:
@@ -29,15 +29,15 @@ Resources:
       MapPublicIpOnLaunch: true
       AvailabilityZone: !Select [ 0, !GetAZs ] # Selects the first AvailabilityZone in the list
       Tags:
-          - Key: "deprovision"
-            Value: "awsnonbastionhost"
+          - Key: "Deprovision"
+            Value: "AWSNonBastionHost"
   PublicRouteTable:
     Type: 'AWS::EC2::RouteTable'
     Properties:
       VpcId: !Ref VPC
       Tags:
-          - Key: "deprovision"
-            Value: "awsnonbastionhost"
+          - Key: "Deprovision"
+            Value: "AWSNonBastionHost"
   DefaultPublicRoute:
     Type: 'AWS::EC2::Route'
     DependsOn: InternetGatewayAttachment
@@ -64,8 +64,8 @@ Resources:
           GroupSet: 
             - !Ref VPCSecurityGroup
       Tags:
-          - Key: "deprovision"
-            Value: "awsnonbastionhost" 
+          - Key: "Deprovision"
+            Value: "AWSNonBastionHost" 
   VPCSecurityGroup: 
     Type: AWS::EC2::SecurityGroup
     Properties: 
