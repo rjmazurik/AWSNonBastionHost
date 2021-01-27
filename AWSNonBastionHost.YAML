@@ -21,9 +21,6 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
-      Tags:
-          - Key: "deprovision"
-            Value: "awsnonbastionhost"
   PublicSubnet:
     Type: 'AWS::EC2::Subnet'
     Properties:
@@ -56,9 +53,6 @@ Resources:
     Properties:
       SubnetId: !Ref PublicSubnet
       RouteTableId: !Ref PublicRouteTable
-      Tags:
-          - Key: "deprovision"
-            Value: "awsnonbastionhost"
   EC2Instance:
     Type: 'AWS::EC2::Instance'
     DependsOn: InternetGatewayAttachment
