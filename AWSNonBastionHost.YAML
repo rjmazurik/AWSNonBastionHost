@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 192.168.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+          - Key: "deprovision"
+            Value: "awsnonbastionhost"
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    DependsOn: VPC
+    Properties: 
+      Tags:
+          - Key: "deprovision"
+            Value: "awsnonbastionhost"
+  InternetGatewayAttachment:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+      Tags:
+          - Key: "deprovision"
+            Value: "awsnonbastionhost"
+  PublicSubnet:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 192.168.0.0/24
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Select [ 0, !GetAZs ] # Selects the first AvailabilityZone in the list
+      Tags:
+          - Key: "deprovision"
+            Value: "awsnonbastionhost"
+  PublicRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+          - Key: "deprovision"
+            Value: "awsnonbastionhost"
+  DefaultPublicRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+      Tags:
+          - Key: "deprovision"
+            Value: "awsnonbastionhost"
+  PublicSubnetRouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      RouteTableId: !Ref PublicRouteTable
+      Tags:
+          - Key: "deprovision"
+            Value: "awsnonbastionhost"
+  EC2Instance:
+    Type: 'AWS::EC2::Instance'
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      ImageId: ami-0528a5175983e7f28
+      AvailabilityZone: !Select [ 0, !GetAZs ] # Selects the first AvailabilityZone in the list
+      InstanceType: t2.micro
+      KeyName: cca-linux-key-pair
+      NetworkInterfaces: 
+        - SubnetId: !Ref PublicSubnet
+          DeviceIndex: '0'
+          GroupSet: 
+            - !Ref VPCSecurityGroup
+      Tags:
+          - Key: "deprovision"
+            Value: "awsnonbastionhost" 
+  VPCSecurityGroup: 
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+        GroupDescription: "Allow SSH from any IP address" 
+        VpcId: !Ref VPC
+        SecurityGroupIngress: 
+        - IpProtocol: tcp 
+          FromPort: 22
+          ToPort: 22 
+          CidrIp: 0.0.0.0/0
+        Tags:
+          - Key: "deprovision"
+            Value: "awsnonbastionhost"
+        
